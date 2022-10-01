@@ -29,8 +29,11 @@
 pragma solidity ^0.8.2;
 // SPDX-License-Identifier: GPL-3.0
 
+/**
+    简单的例子
+*/
 contract Token {
-    
+  
     mapping(address => uint) public balances;
     mapping(address => mapping(address => uint)) public allowance;
 
@@ -42,6 +45,7 @@ contract Token {
     event Transfer(address indexed from, address indexed to, uint value);
     event Approval(address indexed owner, address indexed spender, uint value);
     
+    //msg.sender 为环境变量 
     constructor() {
         balances[msg.sender] = totalSupply;
     }

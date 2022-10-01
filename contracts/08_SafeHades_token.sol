@@ -49,7 +49,9 @@ import "./interfaces/TokenDividendTracker.sol";
 import "./interfaces/Clones.sol";
 import "./interfaces/IUniswapV2Factory.sol";
 
-
+/**
+    跟07一样的
+ */
 
 contract SafeHades is Context, IERC20, Ownable {
     using SafeMath for uint256;

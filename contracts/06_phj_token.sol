@@ -23,10 +23,10 @@ import "./interfaces/IERC20.sol";
 import "./AguacateCoin/Ownable.sol";
 import "./libraries/SafeMath.sol";
 import "./libraries/Address.sol";
-import "./blocktechnology/ERC20.sol";
+import "./contracts/ERC20.sol";
 import "./interfaces/IUniswapV2Router02.sol";
 import "./interfaces/TokenDividendTracker.sol";
-import "./interfaces/Clones.sol";
+import "./libraries/Clones.sol";
 import "./interfaces/IUniswapV2Factory.sol";
 
 contract PHJ is Context, IERC20, Ownable {

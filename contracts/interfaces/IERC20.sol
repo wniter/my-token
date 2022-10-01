@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.5.0;
 
+/*
+https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/IERC20.sol
+*/
 interface IERC20 {
     // 返回存在的代币数量
     function totalSupply() external view returns (uint256);
@@ -33,6 +36,7 @@ interface IERC20 {
 
     // 当value数量的代币从一个form账户移动到另一个to账户
     event Transfer(address indexed from, address indexed to, uint256 value);
+
     // 当调用{approve}时，触发该事件
     event Approval(
         address indexed owner,

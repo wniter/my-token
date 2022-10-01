@@ -7,19 +7,34 @@ import "./interfaces/IERC20.sol";
 import "./interfaces/IERC20Metadata.sol";
 import "./libraries/SafeMath.sol";
 
+/**
+    作为一个简单的test。
+    deloy: 只有name和symbol，无添加总量，这个要在constructor下添加，contracts为合约地址
+*/
+
+
+// 继承ERC20，指定名称和代币符号
+// contract GLDToken is ERC20 {
+//     constructor(uint256 initialSupply) ERC20("Gold", "GLD") {
+//         _mint(msg.sender, initialSupply);  // 然后把代币mint到部署合约钱包地址中
+//     }
+// }
+
 // 实现{IERC20}接口
 contract ERC20 is Context, IERC20, IERC20Metadata {
+    
     //使用uint256调用SafeMath
-   //要不要加
    using SafeMath for uint256;
 
 
+    //  一个地址下有多少代币
     mapping(address => uint256) private _balances;
 
+    // 授权代币数量
     mapping(address => mapping(address => uint256)) private _allowances;
     
     //token的总量
-    uint256 private _totalSupply;
+    uint256 private _totalSupply ;
     //token的名字 name
     string private _name;
     //token的符号
@@ -29,8 +44,10 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     constructor(string memory name_, string memory symbol_) {
         _name = name_;
         _symbol = symbol_;
+        //？
+        // _mint(msg.sender, _totalSupply);//然后把代币mint到部署合约钱包地址中
     }
-
+    // IERC20Metadata
     // 返回代币的名称
     function name() public view virtual override returns (string memory) {
         return _name;
@@ -45,7 +62,8 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     function decimals() public view virtual override returns (uint8) {
         return 18;
     }
-
+    // IERC20Metadata
+    
     // 返回存在的代币数量
     function totalSupply() public view virtual override returns (uint256) {
         return _totalSupply;
@@ -62,7 +80,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         return _balances[account];
     }
 
-    // 将 amount 代币从调用者账户移动到 recipient
+    // 从操作者地址发送amount代币给to钱包地址
     // 返回一个布尔值表示操作是否成功
     // 发出 {Transfer} 事件
     function transfer(address recipient, uint256 amount)
@@ -75,7 +93,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         return true;
     }
 
-    // 返回 spender 允许 owner 通过 {transferFrom}消费剩余的代币数量
+    // 返回owner地址授权给spender地址的代币数量
     function allowance(address owner, address spender)
         public
         view
@@ -85,7 +103,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     {
         return _allowances[owner][spender];
     }
-
+    //授权spender地址amount代币
     // 调用者设置 spender 消费自己amount数量的代币
     function approve(address spender, uint256 amount)
         public
@@ -175,7 +193,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         _afterTokenTransfer(sender, recipient, amount);
     }
 
-    // 给account账户创建amount数量的代币，同时增加总供应量
+    // 铸造代币，这个函数很重要，当我们部署合约后，初始代币就是从这里来的
     function _mint(address account, uint256 amount) internal virtual {
         require(account != address(0), "ERC20: mint to the zero address");
 
@@ -188,7 +206,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         _afterTokenTransfer(address(0), account, amount);
     }
 
-    // 给account账户减少amount数量的代币，同时减少总供应量
+    // 销毁一个地址下amount代币，会影响到代币总量
     function _burn(address account, uint256 amount) internal virtual {
         require(account != address(0), "ERC20: burn from the zero address");
 
@@ -206,7 +224,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         _afterTokenTransfer(account, address(0), amount);
     }
 
-    // 将 `amount` 设置为 `spender` 对 `owner` 的代币的津贴
+    //  授权代币，内部函数
     function _approve(
         address owner,
         address spender,

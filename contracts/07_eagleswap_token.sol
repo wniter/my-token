@@ -26,11 +26,19 @@ import "./interfaces/TokenDividendTracker.sol";
 import "./interfaces/Clones.sol";
 import "./interfaces/IUniswapV2Factory.sol";
 
+
+/**************
+ 这个要留
+    这个uniswap
+https://zhuanlan.zhihu.com/p/400572792
+ */
 contract EGONSWAP is Context, IERC20, Ownable {
     using SafeMath for uint256;
     using Address for address;
-
+    
+   
     mapping (address => uint256) private _rOwned;
+
     mapping (address => uint256) private _tOwned;
     mapping (address => mapping (address => uint256)) private _allowances;
 
@@ -41,6 +49,7 @@ contract EGONSWAP is Context, IERC20, Ownable {
    
     uint256 private constant MAX = ~uint256(0);
     uint256 private _tTotal = 1000000000 * 10**6 * 10**9;
+
     uint256 private _rTotal = (MAX - (MAX % _tTotal));
     uint256 private _tFeeTotal;
 

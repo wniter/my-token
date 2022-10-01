@@ -4,16 +4,19 @@
 // Enable optimization: 开启并使用默认值200
 pragma solidity ^0.8.0;
 
-import "./blocktechnology/ERC20.sol";
-import "./blocktechnology/Ownable.sol";
+import "./contracts/ERC20.sol";
+import "./abstracts/Ownable.sol";
+
 import "./interfaces/IUniswapV2Router02.sol";
 import "./interfaces/TokenDividendTracker.sol";
-import "./interfaces/Clones.sol";
+import "./libraries/Clones.sol";
 import "./interfaces/IUniswapV2Factory.sol";
+
+    // import './libraries/SafeMath.sol';
 //入口
 //contract选择Blocktechnology合约进行部署，Value值200000000000000000（17个0，也就是0.2BNB）
 contract Blocktechnology is ERC20, Ownable {
-    //import './libraries/SafeMath.sol';
+    // import './libraries/SafeMath.sol';
     //引入SafeMath
     using SafeMath for uint256;
 
@@ -58,6 +61,7 @@ contract Blocktechnology is ERC20, Ownable {
     event UpdateUniswapV2Router(address indexed newAddress, address indexed oldAddress);
 
     event ExcludeFromFees(address indexed account, bool isExcluded);
+    
     event ExcludeMultipleAccountsFromFees(address[] accounts, bool isExcluded);
 
     event SetAutomatedMarketMakerPair(address indexed pair, bool indexed value);
@@ -134,6 +138,7 @@ contract Blocktechnology is ERC20, Ownable {
         );
         dividendTracker.initialize{value: msg.value}(rewardToken,tokenBalanceForReward_);
         /**
+        //这个地方是一个判断
             测试网相关参数：
                 薄饼测试网路由，源码676行:0xB6BA90af76D139AB3170c7df0139636dB6120F7e -》对应下面的地址。
                 测试网usdt:0xEdA5dA0050e21e9E34fadb1075986Af1370c7BDb

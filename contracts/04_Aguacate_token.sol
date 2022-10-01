@@ -5,11 +5,14 @@ pragma solidity >=0.5.0;
 
 import "./abstracts/Context.sol";
 import "./interfaces/IERC20.sol";
-import "./AguacateCoin/Ownable.sol";
+import "./abstracts/Ownable.sol";
 import "./libraries/SafeMath.sol";
 import "./libraries/Address.sol";
 
 
+/**************
+    通缩币
+ */
 //    $AguacateCoin
    
 //    $AGUACATE Tokenomics:
@@ -20,45 +23,54 @@ import "./libraries/Address.sol";
 //    Burned supply 250,000,000,000,000
 //    Lottery 1BUSD-AGUACATE 1 ticket, win 50% total of the lottery then burned 50%
 //    WAIT FOR  SWAP
-//    TG: @AguacateCoinGlobal
-//    Twitter: https://twitter.com/AguacateSwap
-//    Website: Coming soon!
-//    Join to private pre-sale
-   
+
 //    AntiWhale 200,000,000,000 per transaction or 0.08% post burned supply or 0.16% pre burned
 
 
 contract AGUACATE is Context, IERC20, Ownable {
     using SafeMath for uint256;
     using Address for address;
-
+    // 默认余额
     mapping (address => uint256) private _rOwned;
+    // 排除余额[实际余额]
     mapping (address => uint256) private _tOwned;
+    // 授权
     mapping (address => mapping (address => uint256)) private _allowances;
 
+    // 排除列表
     mapping (address => bool) private _isExcluded;
+     // 排除列表
     address[] private _excluded;
 
     uint256 private constant MAX = ~uint256(0);
+    // 排除流通量[实际流通量]
     uint256 private _tTotal = 500000000 * 10**6 * 10**9;
+    // 默认余额
     uint256 private _rTotal = (MAX - (MAX % _tTotal));
+     // 累计手续费
     uint256 private _tFeeTotal;
+
 
     string private _name = 'AguacateCoin';
     string private _symbol = 'AGUACATE';
     uint8 private _decimals = 9;
     
-    uint256 public _taxFee = 2;
+    // 最大持有手续费 
+    uint256  public _taxFee = 2;
     uint256 private _previousTaxFee = _taxFee;
+    // 大于该值可进行添加Uni流动性
     uint256 public _burnFee = 6;
     uint256 private _previousBurnFee = _burnFee;
     
+    //销毁地址
     address public burnAdd = 0x000000000000000000000000000000000000dEaD;
     
     uint private _max_tx_size = 200000 * 10**6 * 10**9;
 
     constructor () public {
+          // 把币mint给创建者
         _rOwned[_msgSender()] = _rTotal;
+
         emit Transfer(address(0), _msgSender(), _tTotal);
     }
 
@@ -73,63 +85,69 @@ contract AGUACATE is Context, IERC20, Ownable {
     function decimals() public view returns (uint8) {
         return _decimals;
     }
-
+    // 流通量
     function totalSupply() public view override returns (uint256) {
         return _tTotal;
     }
-
+      // 余额
     function balanceOf(address account) public view override returns (uint256) {
         if (_isExcluded[account]) return _tOwned[account];
         return tokenFromReflection(_rOwned[account]);
     }
-
+  // 转账
     function transfer(address recipient, uint256 amount) public override returns (bool) {
         _transfer(_msgSender(), recipient, amount);
         return true;
     }
-
+// 查询授权
     function allowance(address owner, address spender) public view override returns (uint256) {
         return _allowances[owner][spender];
     }
-
+        // 授权
     function approve(address spender, uint256 amount) public override returns (bool) {
         _approve(_msgSender(), spender, amount);
         return true;
     }
-
+ // 授权转账
     function transferFrom(address sender, address recipient, uint256 amount) public override returns (bool) {
         _transfer(sender, recipient, amount);
         _approve(sender, _msgSender(), _allowances[sender][_msgSender()].sub(amount, "ERC20: transfer amount exceeds allowance"));
         return true;
     }
-
+   // 增加授权
     function increaseAllowance(address spender, uint256 addedValue) public virtual returns (bool) {
         _approve(_msgSender(), spender, _allowances[_msgSender()][spender].add(addedValue));
         return true;
     }
-
+// 减少授权
     function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {
         _approve(_msgSender(), spender, _allowances[_msgSender()][spender].sub(subtractedValue, "ERC20: decreased allowance below zero"));
         return true;
     }
-
+//  是否被排除
     function isExcluded(address account) public view returns (bool) {
         return _isExcluded[account];
     }
-
+   // 累计手续费
     function totalFees() public view returns (uint256) {
         return _tFeeTotal;
     }
-
+// 用户把余额变成手续费
     function deliver(uint256 tAmount) public {
+        //操作人
         address sender = _msgSender();
+          // 排除地址不能进行操作
         require(!_isExcluded[sender], "Excluded addresses cannot call this function");
+            // 计算对应的默认数量
         (uint256 rAmount,,,,,) = _getValues(tAmount);
+       // 扣除余额
         _rOwned[sender] = _rOwned[sender].sub(rAmount);
+        // 减少流通量
         _rTotal = _rTotal.sub(rAmount);
+        // 添加手续费总量
         _tFeeTotal = _tFeeTotal.add(tAmount);
     }
-
+ // 计算排除数量对应的默认数量 或者到账的默认数量
     function reflectionFromToken(uint256 tAmount, bool deductTransferFee) public view returns(uint256) {
         require(tAmount <= _tTotal, "Amount must be less than supply");
         if (!deductTransferFee) {
@@ -140,13 +158,13 @@ contract AGUACATE is Context, IERC20, Ownable {
             return rTransferAmount;
         }
     }
-
+   // 计算实际余额
     function tokenFromReflection(uint256 rAmount) public view returns(uint256) {
         require(rAmount <= _rTotal, "Amount must be less than total reflections");
         uint256 currentRate =  _getRate();
         return rAmount.div(currentRate);
     }
-
+   // 把一个账户进行排除操作
     function excludeAccount(address account) external onlyOwner() {
         //require(account != 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D, 'We can not exclude Uniswap router.');
         require(!_isExcluded[account], "Account is already excluded");
@@ -156,7 +174,7 @@ contract AGUACATE is Context, IERC20, Ownable {
         _isExcluded[account] = true;
         _excluded.push(account);
     }
-
+   // 取消一个排除账户的排除状态
     function includeAccount(address account) external onlyOwner() {
         require(_isExcluded[account], "Account is already excluded");
         for (uint256 i = 0; i < _excluded.length; i++) {
@@ -169,7 +187,7 @@ contract AGUACATE is Context, IERC20, Ownable {
             }
         }
     }
-
+    //这个可以抄ERC20
     function _approve(address owner, address spender, uint256 amount) private {
         require(owner != address(0), "ERC20: approve from the zero address");
         require(spender != address(0), "ERC20: approve to the zero address");
@@ -242,7 +260,7 @@ contract AGUACATE is Context, IERC20, Ownable {
         emit Transfer(sender, burnAdd, tBurn);
         emit Transfer(sender, recipient, tTransferAmount);
     }
-
+    //  //这个可以抄ERC20
     function _reflectFee(uint256 rFee, uint256 tFee) private {
         _rTotal = _rTotal.sub(rFee);
         _tFeeTotal = _tFeeTotal.add(tFee);
@@ -269,7 +287,7 @@ contract AGUACATE is Context, IERC20, Ownable {
         uint256 rTransferAmount = rAmount.sub(rFee).sub(rBurn);
         return (rAmount, rTransferAmount, rFee);
     }
-
+    // 获取默认流通量和排除流通量的比例
     function _getRate() private view returns(uint256) {
         (uint256 rSupply, uint256 tSupply) = _getCurrentSupply();
         return rSupply.div(tSupply);
@@ -313,7 +331,7 @@ contract AGUACATE is Context, IERC20, Ownable {
         _taxFee = 0;
         _burnFee = 0;
     }
-
+       // 恢复手续费率
     function restoreAllFee() private {
         _taxFee = _previousTaxFee;
         _burnFee = _previousBurnFee;
