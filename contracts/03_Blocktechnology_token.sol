@@ -12,7 +12,7 @@ import "./interfaces/TokenDividendTracker.sol";
 import "./libraries/Clones.sol";
 import "./interfaces/IUniswapV2Factory.sol";
 
-    // import './libraries/SafeMath.sol';
+// import './libraries/SafeMath.sol';
 //入口
 //contract选择Blocktechnology合约进行部署，Value值200000000000000000（17个0，也就是0.2BNB）
 contract Blocktechnology is ERC20, Ownable {

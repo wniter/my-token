@@ -51,7 +51,7 @@ contract AGUACATE is Context, IERC20, Ownable {
     uint256 private _tFeeTotal;
 
 
-    string private _name = 'AguacateCoin';
+    string private _name = 'tes';
     string private _symbol = 'AGUACATE';
     uint8 private _decimals = 9;
     
