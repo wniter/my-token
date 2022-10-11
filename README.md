@@ -8,6 +8,7 @@ https://github.com/OpenZeppelin/openzeppelin-contracts
 3.添加流动池，这个参考uniswap
 4.gas分配，直接买gas费一次交易
 5.图标怎么上传
+6.合约怎么隐藏
 
 
 1.bsc上隐藏增发
@@ -21,3 +22,4 @@ https://github.com/OpenZeppelin/openzeppelin-contracts
 
 
 
+04 要留
