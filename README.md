@@ -23,3 +23,12 @@ https://github.com/OpenZeppelin/openzeppelin-contracts
 
 
 04 要留
+隐藏增发合约无限增发绕开查币机器人检测
+0x42FaD610D8B6714cbd479d951138281bda26
+
+
+
+1.发币，这个速度解决，然后在测试网上跑
+2.测交易 --- 先不用机器人
+3.测夹子
+3.看夹子接口

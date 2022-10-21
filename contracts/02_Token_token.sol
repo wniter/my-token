@@ -45,7 +45,10 @@ contract Token {
     event Transfer(address indexed from, address indexed to, uint value);
     event Approval(address indexed owner, address indexed spender, uint value);
     
-    //msg.sender 为环境变量 
+    //msg.sender 
+    // 当前钱包的发起方。
+// msg是全局的，msg.sender是全局变量。
+// from就是account，发起消息的钱包地址，永远等于msg.sender
     constructor() {
         balances[msg.sender] = totalSupply;
     }
